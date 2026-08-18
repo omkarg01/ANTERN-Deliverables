@@ -181,3 +181,11 @@ def get_context_cache_ttl() -> int:
     if explicit is not None and explicit.strip() != "":
         return max(1, int(explicit))
     return 300
+
+
+def get_posthog_api_key() -> str:
+    return os.environ.get("POSTHOG_API_KEY", "").strip()
+
+
+def get_posthog_host() -> str:
+    return os.environ.get("POSTHOG_HOST", "https://us.i.posthog.com").strip().rstrip("/")

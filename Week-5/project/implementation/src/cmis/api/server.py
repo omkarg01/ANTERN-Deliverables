@@ -15,6 +15,7 @@ from uuid import UUID
 import psycopg
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.responses import PlainTextResponse
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -217,6 +218,16 @@ def create_app() -> FastAPI:
         gateway: CMISGateway = app.state.gateway
 
         return gateway.health()
+
+
+
+    @app.get("/metrics", response_class=PlainTextResponse)
+
+    def metrics() -> str:
+
+        gateway: CMISGateway = app.state.gateway
+
+        return gateway.metrics_prometheus()
 
 
 

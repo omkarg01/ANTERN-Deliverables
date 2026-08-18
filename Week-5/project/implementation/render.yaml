@@ -35,3 +35,7 @@ services:
         value: "0"
       - key: CMIS_CORS_ORIGINS
         value: https://antern-deliverables.onrender.com,http://localhost:5173
+      - key: POSTHOG_API_KEY
+        sync: false
+      - key: POSTHOG_HOST
+        value: https://us.i.posthog.com

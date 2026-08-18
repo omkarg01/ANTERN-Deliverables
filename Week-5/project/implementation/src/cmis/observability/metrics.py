@@ -15,6 +15,7 @@ class MetricsRegistry:
     rate_limit_rejections_total: int = 0
     cache_hits_total: int = 0
     cache_misses_total: int = 0
+    context_abstentions_total: int = 0
     errors_total: int = 0
     _lock: Lock = field(default_factory=Lock, repr=False)
 
@@ -46,6 +47,9 @@ class MetricsRegistry:
             "# HELP cmis_cache_misses_total Context cache misses",
             "# TYPE cmis_cache_misses_total counter",
             f"cmis_cache_misses_total {self.cache_misses_total}",
+            "# HELP cmis_context_abstentions_total Context builds that abstained",
+            "# TYPE cmis_context_abstentions_total counter",
+            f"cmis_context_abstentions_total {self.context_abstentions_total}",
             "# HELP cmis_errors_total Structured API errors",
             "# TYPE cmis_errors_total counter",
             f"cmis_errors_total {self.errors_total}",

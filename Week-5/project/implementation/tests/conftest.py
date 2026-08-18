@@ -27,6 +27,7 @@ def _retrieval_test_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CMIS_RELEVANCE_THRESHOLD", "0.3")
     monkeypatch.delenv("REDIS_URL", raising=False)
     monkeypatch.setenv("CMIS_CONTEXT_CACHE", "0")
+    monkeypatch.delenv("POSTHOG_API_KEY", raising=False)
 
 
 def _postgres_available(url: str) -> bool:

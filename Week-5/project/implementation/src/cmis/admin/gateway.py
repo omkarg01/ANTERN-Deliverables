@@ -20,6 +20,7 @@ from cmis.formation.extraction import AdmissionDecision, AdmissionResult
 from cmis.models import ActorType, MemoryType
 from cmis.observability.audit import AuditLogger
 from cmis.observability.metrics import MetricsRegistry
+from cmis.observability.posthog import AnalyticsClient, create_analytics_client, distinct_id_for
 from cmis.observability.tracing import TraceContext, set_trace_id
 from cmis.workflows.client import get_workflow_dispatcher
 from cmis.workflows.models import WorkflowStartResult
@@ -39,6 +40,7 @@ class CMISGateway:
         rate_limiter: RateLimiterProtocol | None = None,
         context_cache: ContextCache | None = None,
         chat_llm: ChatCompletionClient | None = None,
+        analytics: AnalyticsClient | None = None,
     ) -> None:
         self._conn = conn
         self._embedder = embedder or DeterministicEmbedder()
@@ -60,6 +62,7 @@ class CMISGateway:
         self._erasure = ErasureService(self._admission.repository, metrics=self._metrics)
         self._audit = AuditLogger(self._admission.repository)
         self._chat = ChatService(self, chat_llm or create_chat_llm())
+        self._analytics = analytics if analytics is not None else create_analytics_client()
 
     @property
     def metrics(self) -> MetricsRegistry:
@@ -133,6 +136,19 @@ class CMISGateway:
                 trace_id=trace.trace_id,
                 source_turn_id=source_turn_id,
             )
+            self._capture(
+                "memory_admitted",
+                tenant_id=tenant_id,
+                user_id=user_id,
+                properties={"decision": "admitted", "trace_id": trace.trace_id},
+            )
+        else:
+            self._capture(
+                "memory_rejected",
+                tenant_id=tenant_id,
+                user_id=user_id,
+                properties={"decision": "rejected", "trace_id": trace.trace_id},
+            )
         return result
 
     def build_context(
@@ -171,6 +187,7 @@ class CMISGateway:
         if cached is not None:
             self._metrics.inc("context_builds_total")
             self._metrics.inc("retrievals_total")
+            self._record_context_analytics(cached, tenant_id=tenant_id, user_id=user_id, trace_id=trace.trace_id)
             return cached
 
         block = self._context.build_context(
@@ -189,6 +206,7 @@ class CMISGateway:
         )
         self._metrics.inc("context_builds_total")
         self._metrics.inc("retrievals_total")
+        self._record_context_analytics(block, tenant_id=tenant_id, user_id=user_id, trace_id=trace.trace_id)
 
         memory_ids = [item.memory.memory_id for item in block.memories]
         if memory_ids:
@@ -242,11 +260,62 @@ class CMISGateway:
     ):
         trace = TraceContext.start() if trace_id is None else TraceContext(trace_id=trace_id)
         set_trace_id(trace.trace_id)
-        return self._erasure.hard_delete(
+        result = self._erasure.hard_delete(
             memory_id=memory_id,
             tenant_id=tenant_id,
             user_id=user_id,
             trace_id=trace.trace_id,
+        )
+        self._capture(
+            "memory_deleted",
+            tenant_id=tenant_id,
+            user_id=user_id,
+            properties={"trace_id": trace.trace_id},
+        )
+        return result
+
+    def _record_context_analytics(self, block, *, tenant_id: str, user_id: str, trace_id: str) -> None:
+        abstained = bool(block.abstention_reason) or not block.memories
+        if abstained:
+            self._metrics.inc("context_abstentions_total")
+            self._capture(
+                "context_abstained",
+                tenant_id=tenant_id,
+                user_id=user_id,
+                properties={
+                    "abstained": True,
+                    "injected_count": int(block.injected_count),
+                    "trace_id": trace_id,
+                },
+            )
+            return
+        self._capture(
+            "context_built",
+            tenant_id=tenant_id,
+            user_id=user_id,
+            properties={
+                "abstained": False,
+                "injected_count": int(block.injected_count),
+                "trace_id": trace_id,
+            },
+        )
+
+    def _capture(
+        self,
+        event: str,
+        *,
+        tenant_id: str,
+        user_id: str,
+        properties: dict,
+    ) -> None:
+        self._analytics.capture(
+            event,
+            distinct_id=distinct_id_for(tenant_id, user_id),
+            properties={
+                "tenant_id": tenant_id,
+                "user_id": user_id,
+                **properties,
+            },
         )
 
     @staticmethod

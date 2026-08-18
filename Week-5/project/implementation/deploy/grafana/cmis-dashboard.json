@@ -1,0 +1,78 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Admissions",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "cmis_admissions_total",
+          "legendFormat": "admitted",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Context builds",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "cmis_context_builds_total",
+          "legendFormat": "builds",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Abstentions",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "cmis_context_abstentions_total",
+          "legendFormat": "abstained",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Rate-limit rejections",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "cmis_rate_limit_rejections_total",
+          "legendFormat": "rejected",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "CMIS counters",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "cmis_admissions_total", "legendFormat": "admissions", "refId": "A" },
+        { "expr": "cmis_retrievals_total", "legendFormat": "retrievals", "refId": "B" },
+        { "expr": "cmis_context_builds_total", "legendFormat": "context_builds", "refId": "C" },
+        { "expr": "cmis_context_abstentions_total", "legendFormat": "abstentions", "refId": "D" },
+        { "expr": "cmis_errors_total", "legendFormat": "errors", "refId": "E" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["cmis", "i3"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "CMIS production metrics",
+  "uid": "cmis-i3",
+  "version": 1
+}
