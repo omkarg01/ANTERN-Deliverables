@@ -1,0 +1,34 @@
+{
+  "description": "Demo API traffic plan for Grafana — run via scripts/seed_grafana_demo.py",
+  "tenant_id": "demo-tenant",
+  "user_id": "alice",
+  "expected_metrics": [
+    "cmis_admissions_total",
+    "cmis_retrievals_total",
+    "cmis_context_builds_total",
+    "cmis_context_abstentions_total",
+    "cmis_hard_deletes_total",
+    "cmis_rate_limit_rejections_total",
+    "cmis_errors_total"
+  ],
+  "steps": [
+    { "op": "admit", "content": "I prefer espresso after lunch" },
+    { "op": "admit", "content": "My favorite color is teal" },
+    { "op": "admit", "content": "I work in Pacific timezone" },
+    { "op": "admit", "content": "I always take notes in markdown" },
+    { "op": "admit", "content": "I avoid meetings before 10am" },
+    { "op": "admit", "content": "I read sci-fi before bed" },
+    { "op": "admit", "content": "I use a standing desk" },
+    { "op": "admit", "content": "I drink green tea in the afternoon" },
+    { "op": "context", "query": "What do I drink in the morning?", "expect": "match" },
+    { "op": "context", "query": "What is my favorite color?", "expect": "match" },
+    { "op": "context", "query": "When do I avoid meetings?", "expect": "match" },
+    { "op": "context", "query": "What is the capital of Mars?", "expect": "abstain" },
+    { "op": "context", "query": "Who won the 1896 Olympics?", "expect": "abstain" },
+    { "op": "context", "query": "What is the weather on Jupiter?", "expect": "abstain" },
+    { "op": "context", "query": "Tell me about quantum knitting", "expect": "abstain" },
+    { "op": "delete", "target": "first_memory" },
+    { "op": "admit_oversized", "chars": 10001, "expect": "errors_total" },
+    { "op": "rate_limit_hammer", "attempts": 101, "expect": "rate_limit_rejections_total" }
+  ]
+}

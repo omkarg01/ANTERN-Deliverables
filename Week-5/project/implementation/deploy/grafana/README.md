@@ -37,3 +37,19 @@ Do **not** put those on the CMIS web service unless you add a remote-write sidec
 ## PostHog (separate — does need Render env vars)
 
 See the keys listed in `implementation/.env.example`. Grafana Cloud and PostHog are independent.
+
+## Demo traffic (populate all panels)
+
+Grafana stores **live scrapes**, not static JSON points. To fill every counter:
+
+1. On Render, set `CMIS_RERANKER=off` and `CMIS_HYBRID_RETRIEVAL=0` (required for `/api/context` on free tier).
+2. Run:
+
+```powershell
+cd Week-5/project/implementation
+python scripts/seed_grafana_demo.py --delay-seconds 5
+```
+
+Traffic plan reference: `deploy/grafana/demo-traffic-plan.json` (~18 steps).
+
+3. Re-import `cmis-dashboard.json` (version 2) or refresh the dashboard after 2–3 scrape intervals.

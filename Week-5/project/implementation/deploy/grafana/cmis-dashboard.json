@@ -9,70 +9,150 @@
     {
       "title": "Admissions",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
-      "targets": [
-        {
-          "expr": "cmis_admissions_total",
-          "legendFormat": "admitted",
-          "refId": "A"
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_admissions_total", "refId": "A" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "title": "Retrievals",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_retrievals_total", "refId": "A" }]
     },
     {
       "title": "Context builds",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
-      "targets": [
-        {
-          "expr": "cmis_context_builds_total",
-          "legendFormat": "builds",
-          "refId": "A"
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_context_builds_total", "refId": "A" }]
     },
     {
       "title": "Abstentions",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
-      "targets": [
-        {
-          "expr": "cmis_context_abstentions_total",
-          "legendFormat": "abstained",
-          "refId": "A"
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_context_abstentions_total", "refId": "A" }]
     },
     {
-      "title": "Rate-limit rejections",
+      "title": "Hard deletes",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
-      "targets": [
-        {
-          "expr": "cmis_rate_limit_rejections_total",
-          "legendFormat": "rejected",
-          "refId": "A"
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_hard_deletes_total", "refId": "A" }]
     },
     {
-      "title": "CMIS counters",
+      "title": "Rate limits",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_rate_limit_rejections_total", "refId": "A" }]
+    },
+    {
+      "title": "Errors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_errors_total", "refId": "A" }],
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "red", "mode": "fixed" } } }
+    },
+    {
+      "title": "Cache hits",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_cache_hits_total", "refId": "A" }]
+    },
+    {
+      "title": "Cache misses",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "cmis_cache_misses_total", "refId": "A" }]
+    },
+    {
+      "title": "Admission rate (5m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "increase(cmis_admissions_total[5m])", "refId": "A" }]
+    },
+    {
+      "title": "Context rate (5m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "increase(cmis_context_builds_total[5m])", "refId": "A" }]
+    },
+    {
+      "title": "Abstention rate (5m)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [{ "expr": "increase(cmis_context_abstentions_total[5m])", "refId": "A" }]
+    },
+    {
+      "title": "All CMIS counters (cumulative)",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "targets": [
         { "expr": "cmis_admissions_total", "legendFormat": "admissions", "refId": "A" },
         { "expr": "cmis_retrievals_total", "legendFormat": "retrievals", "refId": "B" },
         { "expr": "cmis_context_builds_total", "legendFormat": "context_builds", "refId": "C" },
         { "expr": "cmis_context_abstentions_total", "legendFormat": "abstentions", "refId": "D" },
-        { "expr": "cmis_errors_total", "legendFormat": "errors", "refId": "E" }
+        { "expr": "cmis_hard_deletes_total", "legendFormat": "hard_deletes", "refId": "E" },
+        { "expr": "cmis_rate_limit_rejections_total", "legendFormat": "rate_limits", "refId": "F" },
+        { "expr": "cmis_errors_total", "legendFormat": "errors", "refId": "G" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "bottom" } }
+    },
+    {
+      "title": "Activity rates per minute",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        { "expr": "rate(cmis_admissions_total[1m]) * 60", "legendFormat": "admits/min", "refId": "A" },
+        { "expr": "rate(cmis_context_builds_total[1m]) * 60", "legendFormat": "contexts/min", "refId": "B" },
+        { "expr": "rate(cmis_context_abstentions_total[1m]) * 60", "legendFormat": "abstentions/min", "refId": "C" },
+        { "expr": "rate(cmis_rate_limit_rejections_total[1m]) * 60", "legendFormat": "rate_limits/min", "refId": "D" }
+      ]
+    },
+    {
+      "title": "Metric mix (latest snapshot)",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        { "expr": "cmis_admissions_total", "legendFormat": "admissions", "refId": "A" },
+        { "expr": "cmis_context_builds_total", "legendFormat": "contexts", "refId": "B" },
+        { "expr": "cmis_context_abstentions_total", "legendFormat": "abstentions", "refId": "C" },
+        { "expr": "cmis_hard_deletes_total", "legendFormat": "deletes", "refId": "D" },
+        { "expr": "cmis_rate_limit_rejections_total", "legendFormat": "rate_limits", "refId": "E" },
+        { "expr": "cmis_errors_total", "legendFormat": "errors", "refId": "F" }
+      ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient" }
+    },
+    {
+      "title": "Safety & limits",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        { "expr": "cmis_errors_total", "legendFormat": "errors", "refId": "A" },
+        { "expr": "cmis_rate_limit_rejections_total", "legendFormat": "rate_limits", "refId": "B" },
+        { "expr": "cmis_hard_deletes_total", "legendFormat": "hard_deletes", "refId": "C" }
       ]
     }
   ],
   "schemaVersion": 39,
-  "tags": ["cmis", "i3"],
+  "tags": ["cmis", "i3", "demo"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timezone": "browser",
   "title": "CMIS production metrics",
   "uid": "cmis-i3",
-  "version": 1
+  "version": 2
 }

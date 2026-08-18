@@ -27,6 +27,12 @@ services:
         value: "0"
       - key: CMIS_EMBEDDER
         value: deterministic
+      - key: CMIS_RERANKER
+        value: off
+      - key: CMIS_HYBRID_RETRIEVAL
+        value: "0"
+      - key: CMIS_RELEVANCE_THRESHOLD
+        value: "0.3"
       - key: CMIS_AUTH_DISABLED
         value: "1"
       - key: CMIS_API_HOST
