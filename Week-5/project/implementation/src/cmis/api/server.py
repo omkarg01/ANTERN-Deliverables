@@ -2,7 +2,9 @@ from __future__ import annotations
 
 
 
+import base64
 import os
+import secrets
 
 from contextlib import asynccontextmanager
 
@@ -14,7 +16,7 @@ from uuid import UUID
 
 import psycopg
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,7 +51,7 @@ from cmis.api.serializers import (
 
 )
 
-from cmis.config import get_database_url, load_dotenv_file
+from cmis.config import get_database_url, get_metrics_scrape_token, load_dotenv_file
 from cmis.admin.rate_limit import create_rate_limiter
 from cmis.embedder import create_embedder
 
@@ -110,6 +112,37 @@ class WorkflowLifecycleRequest(ScopeBody):
 def _raise_cmis_error(exc: CMISError) -> None:
 
     raise HTTPException(status_code=exc.status, detail=exc.to_response().to_dict())
+
+
+PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
+
+
+def _extract_metrics_secret(request: Request) -> str:
+    header = request.headers.get("authorization", "")
+    scheme, _, remainder = header.partition(" ")
+    if scheme.lower() == "bearer":
+        return remainder.strip()
+    if scheme.lower() == "basic":
+        try:
+            decoded = base64.b64decode(remainder.strip()).decode("utf-8")
+        except (ValueError, UnicodeDecodeError):
+            return ""
+        _user, separator, password = decoded.partition(":")
+        return password if separator else decoded
+    return ""
+
+
+def _require_metrics_scrape_auth(request: Request) -> None:
+    expected = get_metrics_scrape_token()
+    if not expected:
+        return
+    provided = _extract_metrics_secret(request)
+    if not provided or not secrets.compare_digest(provided, expected):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid metrics scrape credentials",
+            headers={"WWW-Authenticate": 'Bearer realm="metrics", charset="UTF-8"'},
+        )
 
 
 
@@ -221,13 +254,18 @@ def create_app() -> FastAPI:
 
 
 
-    @app.get("/metrics", response_class=PlainTextResponse)
+    @app.get("/metrics")
 
-    def metrics() -> str:
+    def metrics(request: Request) -> PlainTextResponse:
+
+        _require_metrics_scrape_auth(request)
 
         gateway: CMISGateway = app.state.gateway
 
-        return gateway.metrics_prometheus()
+        return PlainTextResponse(
+            gateway.metrics_prometheus(),
+            media_type=PROMETHEUS_CONTENT_TYPE,
+        )
 
 
 

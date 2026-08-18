@@ -189,3 +189,8 @@ def get_posthog_api_key() -> str:
 
 def get_posthog_host() -> str:
     return os.environ.get("POSTHOG_HOST", "https://us.i.posthog.com").strip().rstrip("/")
+
+
+def get_metrics_scrape_token() -> str:
+    """Shared secret for Grafana Hosted Collector (Bearer or Basic password)."""
+    return os.environ.get("CMIS_METRICS_TOKEN", "").strip()

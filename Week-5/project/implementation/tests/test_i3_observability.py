@@ -97,4 +97,5 @@ def test_i3_t1_metrics_http_endpoint(migrated_db: None, monkeypatch) -> None:
     assert response.status_code == 200
     assert "cmis_admissions_total" in response.text
     assert "cmis_context_abstentions_total" in response.text
-    assert response.headers["content-type"].startswith("text/plain")
+    assert "text/plain" in response.headers["content-type"]
+    assert "version=0.0.4" in response.headers["content-type"]

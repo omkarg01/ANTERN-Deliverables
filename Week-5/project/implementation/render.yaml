@@ -39,3 +39,5 @@ services:
         sync: false
       - key: POSTHOG_HOST
         value: https://us.i.posthog.com
+      - key: CMIS_METRICS_TOKEN
+        sync: false
