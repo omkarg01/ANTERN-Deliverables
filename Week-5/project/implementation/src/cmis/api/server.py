@@ -133,15 +133,20 @@ def _extract_metrics_secret(request: Request) -> str:
 
 
 def _require_metrics_scrape_auth(request: Request) -> None:
-    expected = get_metrics_scrape_token()
-    if not expected:
-        return
+    """Grafana Cloud Metrics Endpoint probes without Authorization first and requires 401."""
     provided = _extract_metrics_secret(request)
-    if not provided or not secrets.compare_digest(provided, expected):
+    if not provided:
+        raise HTTPException(
+            status_code=401,
+            detail="Metrics scrape credentials required",
+            headers={"WWW-Authenticate": 'Basic realm="metrics"'},
+        )
+    expected = get_metrics_scrape_token()
+    if expected and not secrets.compare_digest(provided, expected):
         raise HTTPException(
             status_code=401,
             detail="Invalid metrics scrape credentials",
-            headers={"WWW-Authenticate": 'Bearer realm="metrics", charset="UTF-8"'},
+            headers={"WWW-Authenticate": 'Basic realm="metrics"'},
         )
 
 

@@ -92,8 +92,12 @@ def test_i3_t2_posthog_events_omit_raw_content(db_conn, embedder) -> None:
 
 def test_i3_t1_metrics_http_endpoint(migrated_db: None, monkeypatch) -> None:
     monkeypatch.setenv("CMIS_AUTH_DISABLED", "1")
+    monkeypatch.delenv("CMIS_METRICS_TOKEN", raising=False)
     with TestClient(create_app()) as client:
-        response = client.get("/metrics")
+        unauthenticated = client.get("/metrics")
+        assert unauthenticated.status_code == 401
+        assert "WWW-Authenticate" in unauthenticated.headers
+        response = client.get("/metrics", headers={"Authorization": "Bearer cmis-scrape"})
     assert response.status_code == 200
     assert "cmis_admissions_total" in response.text
     assert "cmis_context_abstentions_total" in response.text
