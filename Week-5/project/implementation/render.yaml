@@ -1,0 +1,37 @@
+# Render Blueprint — CMIS API + Postgres
+# Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: cmis-postgres
+    databaseName: cmis_postgres
+    user: cmis_postgres_user
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: ANTERN-Deliverables
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: Week-5/project/implementation
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cmis-postgres
+          property: connectionString
+      - key: CMIS_USE_TEMPORAL
+        value: "0"
+      - key: CMIS_EMBEDDER
+        value: deterministic
+      - key: CMIS_AUTH_DISABLED
+        value: "1"
+      - key: CMIS_API_HOST
+        value: 0.0.0.0
+      - key: CMIS_CONTEXT_CACHE
+        value: "0"
+      - key: CMIS_CORS_ORIGINS
+        value: https://antern-deliverables.onrender.com,http://localhost:5173

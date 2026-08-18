@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -e ".[api,temporal,redis]"
 
 EXPOSE 8000
 
-CMD ["python", "scripts/serve_api.py"]
+CMD ["sh", "-c", "python scripts/migrate.py && python scripts/serve_api.py"]
