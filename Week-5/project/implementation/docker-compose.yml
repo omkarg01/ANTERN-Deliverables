@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: cmis-postgres
+    environment:
+      POSTGRES_USER: cmis
+      POSTGRES_PASSWORD: cmis
+      POSTGRES_DB: cmis
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cmis -d cmis"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: cmis-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  temporal:
+    image: temporalio/auto-setup:1.25.2
+    container_name: cmis-temporal
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB: postgres12
+      DB_PORT: 5432
+      POSTGRES_USER: cmis
+      POSTGRES_PWD: cmis
+      POSTGRES_SEEDS: postgres
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+
+  api:
+    build: .
+    container_name: cmis-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://cmis:cmis@postgres:5432/cmis
+      REDIS_URL: redis://redis:6379/0
+      CMIS_CONTEXT_CACHE: "1"
+      CMIS_USE_TEMPORAL: "1"
+      CMIS_TEMPORAL_HOST: temporal:7233
+      CMIS_TEMPORAL_NAMESPACE: default
+      CMIS_TEMPORAL_TASK_QUEUE: cmis-background
+      CMIS_EMBEDDER: deterministic
+      CMIS_AUTH_DISABLED: "1"
+      CMIS_API_HOST: 0.0.0.0
+      CMIS_API_PORT: "8000"
+      CMIS_CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    command:
+      - python
+      - scripts/serve_api.py
+
+  worker:
+    build: .
+    container_name: cmis-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://cmis:cmis@postgres:5432/cmis
+      CMIS_USE_TEMPORAL: "1"
+      CMIS_TEMPORAL_HOST: temporal:7233
+      CMIS_TEMPORAL_NAMESPACE: default
+      CMIS_TEMPORAL_TASK_QUEUE: cmis-background
+      CMIS_EMBEDDER: deterministic
+    command: ["python", "scripts/run_worker.py"]
