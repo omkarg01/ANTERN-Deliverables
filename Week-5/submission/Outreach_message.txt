@@ -1,0 +1,21 @@
+V1 
+
+For New Leads:
+
+Hi [Prospect First Name], found [Company Name] researching how FinTech AI teams run document workflows in production. Curious: is the bottleneck still extraction accuracy, or has it shifted to traceability, eval & edge cases? Would value your take.
+
+Hi [Prospect First Name], just wanted to check if you had a chance to consider AI opportunities and collaborations we discussed? Many founders are seeing significant growth by integrating AI roles into their teams.
+
+Hey [Prospect First Name], AI is transforming startups rapidly. If you’re open, I’d love to share how we’ve helped founders like you build meaningful AI partnerships that drive growth.
+
+
+
+For Connected Leads:
+
+Hey [Prospect First Name], I’ve been following your work on [Profile related] at [Company Name]. Many US founders are exploring AI collaborations and roles to accelerate growth. Would love to discuss how we can help you leverage AI for long-term success.
+
+Hi [Prospect First Name], just wanted to check if you had a chance to consider AI opportunities and collaborations we discussed? Many founders are seeing significant growth by integrating AI roles into their teams.
+
+Hey [Prospect First Name], AI is transforming startups rapidly. If you’re open, I’d love to share how we’ve helped founders like you build meaningful AI partnerships that drive growth.
+
+
